@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "users": [
+    {
+      "user_id": "u-eng-104",
+      "display_name": "Maya Chen",
+      "department": "Engineering",
+      "roles": [
+        "employee"
+      ],
+      "groups": [
+        "all_employees",
+        "engineering"
+      ]
+    },
+    {
+      "user_id": "u-hr-207",
+      "display_name": "Omar Haddad",
+      "department": "Human Resources",
+      "roles": [
+        "employee",
+        "hr_specialist"
+      ],
+      "groups": [
+        "all_employees",
+        "hr_general",
+        "hr_investigations"
+      ]
+    },
+    {
+      "user_id": "u-proc-310",
+      "display_name": "Leila Mansour",
+      "department": "Procurement",
+      "roles": [
+        "employee",
+        "procurement_manager"
+      ],
+      "groups": [
+        "all_employees",
+        "procurement"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "schema_version": "1.0",
+  "documents": [
+    {
+      "document_id": "APX-PROC-POL-014",
+      "title": "Enterprise Vendor Approval Policy",
+      "version": "3.0",
+      "status": "Current",
+      "effective_date": "2026-07-01",
+      "classification": "INTERNAL",
+      "allowed_groups": [
+        "all_employees"
+      ],
+      "path": "corpus/public/APX-PROC-POL-014_Vendor_Approval_Policy_v3.docx"
+    },
+    {
+      "document_id": "APX-HR-POL-003",
+      "title": "Employee Leave Policy",
+      "version": "4.2",
+      "status": "Current",
+      "effective_date": "2026-04-01",
+      "classification": "INTERNAL",
+      "allowed_groups": [
+        "all_employees"
+      ],
+      "path": "corpus/public/APX-HR-POL-003_Employee_Leave_Policy_v4_2.docx"
+    },
+    {
+      "document_id": "APX-PROC-POL-014",
+      "title": "Enterprise Vendor Approval Policy",
+      "version": "2.1",
+      "status": "Retired",
+      "effective_date": "2024-03-15",
+      "classification": "INTERNAL",
+      "allowed_groups": [
+        "all_employees"
+      ],
+      "path": "corpus/archived/APX-PROC-POL-014_Vendor_Approval_Policy_v2_1_RETIRED.pdf"
+    },
+    {
+      "document_id": "APX-PROC-MTX-006",
+      "title": "Procurement Approval Matrix",
+      "version": "1.2",
+      "status": "Current",
+      "effective_date": "2026-08-15",
+      "classification": "INTERNAL",
+      "allowed_groups": [
+        "all_employees"
+      ],
+      "path": "corpus/public/APX-PROC-MTX-006_Procurement_Approval_Matrix_v1_2.pdf"
+    },
+    {
+      "document_id": "APX-LEGAL-MEM-027",
+      "title": "Legal Advisory Memo",
+      "version": "1.0",
+      "status": "Active advisory",
+      "effective_date": "2026-08-20",
+      "classification": "INTERNAL",
+      "allowed_groups": [
+        "all_employees"
+      ],
+      "path": "corpus/public/APX-LEGAL-MEM-027_Standard_Renewal_Review.pdf"
+    },
+    {
+      "document_id": "APX-HR-CASE-778",
+      "title": "Employee Relations Investigation Summary",
+      "version": "1.0",
+      "status": "Open",
+      "effective_date": "2026-08-11",
+      "classification": "RESTRICTED_HR_INVESTIGATION",
+      "allowed_groups": [
+        "hr_investigations"
+      ],
+      "path": "corpus/restricted/APX-HR-CASE-778_Investigation_Summary.pdf"
+    },
+    {
+      "document_id": "APX-LEG-CON-NS-2026",
+      "title": "NexaServe Managed Support Agreement",
+      "version": "1.0",
+      "status": "Active",
+      "effective_date": "2026-05-01",
+      "classification": "INTERNAL",
+      "allowed_groups": [
+        "all_employees"
+      ],
+      "path": "corpus/public/APX-LEG-CON-NS-2026_NexaServe_Service_Agreement.pdf"
+    },
+    {
+      "document_id": "APX-ENG-KB-991",
+      "title": "Legacy Assistant Migration Notes",
+      "version": "0.9",
+      "status": "Unverified",
+      "effective_date": "2026-08-07",
+      "classification": "INTERNAL",
+      "allowed_groups": [
+        "all_employees"
+      ],
+      "path": "corpus/public/APX-ENG-KB-991_Legacy_Assistant_Migration_Notes.pdf"
+    }
+  ]
+}

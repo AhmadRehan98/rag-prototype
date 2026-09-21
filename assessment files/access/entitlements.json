@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "default_rule": "deny",
+  "rules": [
+    {
+      "rule_id": "internal_employee_access",
+      "classification": "INTERNAL",
+      "allow_groups": [
+        "all_employees"
+      ]
+    },
+    {
+      "rule_id": "restricted_hr_investigation_access",
+      "classification": "RESTRICTED_HR_INVESTIGATION",
+      "allow_groups": [
+        "hr_investigations"
+      ]
+    }
+  ],
+  "document_overrides": [
+    {
+      "document_id": "APX-HR-CASE-778",
+      "allow_groups": [
+        "hr_investigations"
+      ],
+      "deny_groups": [
+        "engineering",
+        "procurement"
+      ]
+    }
+  ]
+}
