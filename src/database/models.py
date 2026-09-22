@@ -80,7 +80,7 @@ class UserGroupModel(Base):
     group = Column(String(64), nullable=False)
     user = relationship(
         "UserModel",
-        back_populates="roles",
+        back_populates="groups",
     )
 
     __table_args__ = (UniqueConstraint("user_id", "group"),)
