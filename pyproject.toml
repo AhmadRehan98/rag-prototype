@@ -17,6 +17,7 @@ torch = {version = "2.14.0+cpu", source = "pytorch-cpu"}
 sentence-transformers = "^6.0"
 alembic = "^1.13"
 python-multipart = "^0.0.22"
+psycopg2-binary = "^2.9.13"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2"
