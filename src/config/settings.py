@@ -28,6 +28,10 @@ class Settings(BaseSettings):
         "postgresql://postgres:postgres@localhost:5432/rag_prototype"
     )
 
+    # Embedding settings
+    EMBEDDING_DIMENSION: int = 384
+    EMBEDDING_DEVICE: str = "cpu"
+
     # Data paths relative to PROJECT_ROOT
     CORPUS_JSONL_PATH: Path = Field(
         default_factory=lambda: Path("data/normalized/corpus.jsonl")
