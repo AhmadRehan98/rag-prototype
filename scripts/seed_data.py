@@ -14,6 +14,7 @@ from src.database.repositories import (
     UserRepository,
 )
 from src.database.connection import ASYNC_SESSION_LOCAL, init_db, close_db
+from src.retrieval.indexer import ChunkIndexer
 
 DEFAULT_IDENTITIES_PATH = Path("data/access/identities.json")
 
@@ -758,12 +759,16 @@ async def seed(
             await session.rollback()
             raise
 
+        # index data as well
+        chunks_indexed = await ChunkIndexer(session).index_unindexed_chunks()
+
     await close_db()
 
     print("Database seed completed successfully.")
     print(f"New users: {users_created}")
     print(f"New documents: {documents_created}")
     print(f"Chunks processed: {chunks_created}")
+    print(f"Chunks indexed: {chunks_indexed}")
 
 
 def parse_args() -> argparse.Namespace:
