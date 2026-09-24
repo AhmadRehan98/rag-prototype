@@ -11,7 +11,6 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from src.config.settings import settings
-from src.database.models import Base
 
 logger = logging.getLogger(__name__)
 
@@ -47,13 +46,9 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
 
 
 async def init_db() -> None:
-    """Initialize database extensions and schema."""
-    logger.info("Initializing database and ensuring pgvector extension is installed...")
+    logger.info("Ensuring pgvector extension is installed...")
     async with engine.begin() as conn:
-        # Enable pgvector extension
         await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
-        # Create all tables defined in Base metadata
-        await conn.run_sync(Base.metadata.create_all)
     logger.info("Database initialization completed.")
 
 

@@ -7,7 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """Central configuration for local Enterprise Knowledge RAG platform."""
+    """Central configuration for local RAG platform."""
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -23,9 +23,6 @@ class Settings(BaseSettings):
     # Database settings
     DATABASE_URL: str = (
         "postgresql+asyncpg://postgres:postgres@localhost:5432/rag_prototype"
-    )
-    SYNC_DATABASE_URL: str = (
-        "postgresql://postgres:postgres@localhost:5432/rag_prototype"
     )
 
     # Embedding settings
@@ -50,9 +47,11 @@ class Settings(BaseSettings):
     @property
     def sync_database_url(self) -> str:
         """Return synchronous database URL suitable for Alembic or sync engines."""
-        if self.SYNC_DATABASE_URL:
-            return self.SYNC_DATABASE_URL
         return self.DATABASE_URL.replace("postgresql+asyncpg://", "postgresql://")
+
+    @property
+    def async_database_url(self) -> str:
+        return self.DATABASE_URL
 
     def resolve_path(self, path: Path | str) -> Path:
         """Resolve path against project root if relative."""
