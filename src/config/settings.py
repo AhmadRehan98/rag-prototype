@@ -29,6 +29,17 @@ class Settings(BaseSettings):
     EMBEDDING_DIMENSION: int = 384
     EMBEDDING_DEVICE: str = "cpu"
 
+    # Retrieval and evidence settings
+    RETRIEVAL_TOP_K: int = 5
+    # Minimum cosine similarity
+    MIN_EVIDENCE_SIMILARITY: float = 0.6
+
+    # Local LLM
+    LLM_BASE_URL: str = "http://localhost:8080"
+    LLM_TIMEOUT_SECONDS: float = 300.0
+    # Output cap
+    LLM_MAX_TOKENS: int = 800
+
     # Data paths relative to PROJECT_ROOT
     CORPUS_JSONL_PATH: Path = Field(
         default_factory=lambda: Path("data/normalized/corpus.jsonl")

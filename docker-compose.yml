@@ -31,8 +31,32 @@ services:
     # Local-only credentials, matching the postgres service above.
     environment:
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/rag_prototype
+      LLM_BASE_URL: http://llm:8080
     volumes:
       - .:/workspace
 
+  llm:
+    image: ghcr.io/ggml-org/llama.cpp:server
+    container_name: rag_prototype_llm
+    restart: unless-stopped
+    environment:
+      LLAMA_CACHE: /models
+      LLM_THREADS: ${LLM_THREADS:-}
+    entrypoint: ["sh", "-c"]
+    command:
+      - >-
+        exec /app/llama-server
+        --hf-repo Qwen/Qwen2.5-3B-Instruct-GGUF
+        --hf-file qwen2.5-3b-instruct-q4_k_m.gguf
+        --ctx-size 8192
+        --threads "$${LLM_THREADS:-$$(nproc)}"
+        --host 0.0.0.0
+        --port 8080
+    ports:
+      - "8080:8080"
+    volumes:
+      - llm_models:/models
+
 volumes:
   postgres_data:
+  llm_models:
