@@ -37,13 +37,14 @@ class QuestionAnsweringService:
         user = await self.user_repo.get_by_user_id(request.user_id)
         if user is None:
             raise UserNotFoundError(f"Unknown user: {request.user_id}")
-
+        # grab only authed docs
         allowed_ids = await self.authorization.get_authorized_document_ids(user)
         chunks = await self.retriever.retrieve(
             question=request.question,
             allowed_document_ids=allowed_ids,
             top_k=settings.RETRIEVAL_TOP_K,
         )
+        # filter evidence
         evidence_set = self.selector.select(chunks)
         sources, excluded = _sources(evidence_set), _excluded(evidence_set)
 

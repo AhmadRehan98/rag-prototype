@@ -23,9 +23,19 @@ def test_passing_response_has_no_failures():
 
 def test_status_and_citation_failures_are_reported():
     response = QueryResponse(status="insufficient_evidence", answer="- A. [2]",
+                             missing_information="A signed schedule.",
                              sources=[source(1, "POL"), source(2, "MEMO")])
     failures = check_case(case(cited_documents=["POL"]), response)
     assert len(failures) == 2
+
+
+def test_refusal_must_say_what_evidence_is_missing():
+    refusal = case(status=["insufficient_evidence"])
+    silent = QueryResponse(status="insufficient_evidence", answer="No.")
+    explained = QueryResponse(status="insufficient_evidence", answer="No.",
+                              missing_information="A signed schedule with response times.")
+    assert check_case(refusal, silent) == ["refusal does not say what evidence is missing"]
+    assert check_case(refusal, explained) == []
 
 
 def test_forbidden_source_matches_id_or_id_at_version():

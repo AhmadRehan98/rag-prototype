@@ -49,6 +49,9 @@ class Settings(BaseSettings):
     ENTITLEMENTS_JSON_PATH: Path = Field(
         default_factory=lambda: Path("data/access/entitlements.json")
     )
+    EVALUATION_CASES_PATH: Path = Field(
+        default_factory=lambda: Path("data/evaluation/cases.jsonl")
+    )
 
     # Security & Logging
     ENABLE_SAFE_LOGGING: bool = True

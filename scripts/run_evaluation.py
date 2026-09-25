@@ -8,6 +8,8 @@ between runs.
 Every failed check blocks a release:
 - status: the outcome class is wrong (e.g. an SLA question was "answered", or a
   question the user is entitled to have answered was refused).
+- missing_information: an insufficient_evidence refusal does not say what
+  evidence would be needed to answer (Incident 2 requires it).
 - cited_documents / required_text_any: the answer is not grounded in the
   document that must control it (e.g. the current policy, the threshold table).
 - forbidden_sources / excluded_sources: a retired, unverified or restricted
@@ -89,6 +91,9 @@ def check_case(case: dict, response: QueryResponse) -> list[str]:
 
     if response.status not in expect["status"]:
         failures.append(f"status {response.status!r} not in {expect['status']}")
+
+    if response.status == "insufficient_evidence" and not response.missing_information:
+        failures.append("refusal does not say what evidence is missing")
 
     cited = cited_document_ids(response)
     for document_id in expect.get("cited_documents", []):

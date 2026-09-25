@@ -55,6 +55,16 @@ class QueryResponse(BaseModel):
     excluded_sources: list[ExcludedSource] = []
 
 
+class DocumentSummary(BaseModel):
+    """Metadata of a document a user is authorized to read (no content)."""
+
+    document_id: str
+    title: str
+    version: str
+    status: str
+    classification: str
+
+
 class UserProfile(BaseModel):
     """Public view of a supplied user identity."""
 
