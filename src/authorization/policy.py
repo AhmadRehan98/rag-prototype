@@ -5,13 +5,11 @@ Access requires passing ALL of:
 3. The entitlements default_rule for classifications with no rule (deny if unset).
 """
 
-import logging
 import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-logger = logging.getLogger(__name__)
 from src.config.settings import settings
 from src.database.models import DocumentModel, UserModel
 
@@ -21,9 +19,7 @@ class AuthorizationResult:
     """Immutable authorization verdict"""
 
     is_allowed: bool
-    reason: str
     matched_rule: str | None = None
-    document_id: str | None = None
     user_id: str | None = None
 
 
@@ -83,9 +79,9 @@ class AuthorizationPolicy:
         self,
         path: Path,
     ) -> None:
+        # Fail closed: without the entitlements there are no rules to enforce.
         if not path.exists():
-            logger.warning("Entitlements json file can't be found at path %s", path)
-            return
+            raise FileNotFoundError(f"Entitlements file not found: {path}")
 
         with path.open("r", encoding="utf-8") as file:
             data = json.load(file)
@@ -128,13 +124,7 @@ class AuthorizationPolicy:
             if matching_denies:
                 return AuthorizationResult(
                     is_allowed=False,
-                    reason=(
-                        f"Access denied by explicit override on "
-                        f"{document.document_id}: user is in a "
-                        f"denied group."
-                    ),
                     matched_rule="document_override_deny",
-                    document_id=document.document_id,
                     user_id=user.user_id,
                 )
 
@@ -142,13 +132,7 @@ class AuthorizationPolicy:
             if allowed_groups and not user_groups & allowed_groups:
                 return AuthorizationResult(
                     is_allowed=False,
-                    reason=(
-                        f"Access denied by explicit override on "
-                        f"{document.document_id}: user does not "
-                        f"belong to an allowed group."
-                    ),
                     matched_rule="document_override_not_allowed",
-                    document_id=document.document_id,
                     user_id=user.user_id,
                 )
 
@@ -161,34 +145,15 @@ class AuthorizationPolicy:
             required_groups = rule["allow_groups"]
             matching_groups = user_groups & required_groups
 
-            if matching_groups:
-                return AuthorizationResult(
-                    is_allowed=True,
-                    reason=(f"Access granted by classification rule " f"'{rule_id}'."),
-                    matched_rule=rule_id,
-                    document_id=document.document_id,
-                    user_id=user.user_id,
-                )
-
             return AuthorizationResult(
-                is_allowed=False,
-                reason=(
-                    f"Access denied by classification rule "
-                    f"'{rule_id}': user does not satisfy the "
-                    f"required group entitlement."
-                ),
+                is_allowed=bool(matching_groups),
                 matched_rule=rule_id,
-                document_id=document.document_id,
                 user_id=user.user_id,
             )
 
         # 4. No classification rule: apply the entitlements default_rule
         return AuthorizationResult(
             is_allowed=self.default_rule == "allow",
-            reason=(
-                f"Classification: '{classification}' has no authorization rule specified. default rule: '{self.default_rule}' applied."
-            ),
             matched_rule=f"default_{self.default_rule}",
-            document_id=document.document_id,
             user_id=user.user_id,
         )
