@@ -1,6 +1,6 @@
 from collections.abc import Sequence
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -65,80 +65,6 @@ class UserRepository:
 
         return user
 
-    async def add_role(
-        self,
-        user: UserModel,
-        role: str,
-    ) -> UserRoleModel:
-        user_role = UserRoleModel(
-            user=user,
-            role=role,
-        )
-
-        self.session.add(user_role)
-        await self.session.flush()
-
-        return user_role
-
-    async def remove_role(
-        self,
-        user: UserModel,
-        role: str,
-    ) -> bool:
-        result = await self.session.execute(
-            select(UserRoleModel).where(
-                UserRoleModel.user_id == user.id,
-                UserRoleModel.role == role,
-            )
-        )
-
-        user_role = result.scalar_one_or_none()
-
-        if user_role is None:
-            return False
-
-        await self.session.delete(user_role)
-        await self.session.flush()
-
-        return True
-
-    async def add_group(
-        self,
-        user: UserModel,
-        group: str,
-    ) -> UserGroupModel:
-        user_group = UserGroupModel(
-            user=user,
-            group=group,
-        )
-
-        self.session.add(user_group)
-        await self.session.flush()
-
-        return user_group
-
-    async def remove_group(
-        self,
-        user: UserModel,
-        group: str,
-    ) -> bool:
-        result = await self.session.execute(
-            select(UserGroupModel).where(
-                UserGroupModel.user_id == user.id,
-                UserGroupModel.group == group,
-            )
-        )
-
-        user_group = result.scalar_one_or_none()
-
-        if user_group is None:
-            return False
-
-        await self.session.delete(user_group)
-        await self.session.flush()
-
-        return True
-
-    async def delete(self, user: UserModel) -> None:
-        await self.session.delete(user)
-        await self.session.flush()
+    async def delete_all(self) -> None:
+        """Delete every user. The database cascades the delete to their roles and groups."""
+        await self.session.execute(delete(UserModel))

@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from typing import Any
 
-from sqlalchemy import Text, cast, delete, func, select, update
+from sqlalchemy import Text, cast, func, select, update
 from sqlalchemy.dialects.postgresql import TSQUERY
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -13,28 +13,6 @@ class ChunkRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_by_id(
-        self,
-        chunk_id: int,
-    ) -> ChunkModel | None:
-        result = await self.session.execute(
-            select(ChunkModel)
-            .options(selectinload(ChunkModel.document))
-            .where(ChunkModel.id == chunk_id)
-        )
-        return result.scalar_one_or_none()
-
-    async def get_for_document(
-        self,
-        document_db_id: int,
-    ) -> Sequence[ChunkModel]:
-        result = await self.session.execute(
-            select(ChunkModel)
-            .where(ChunkModel.document_db_id == document_db_id)
-            .order_by(ChunkModel.chunk_index)
-        )
-        return result.scalars().all()
-
     async def list_unindexed(self) -> Sequence[ChunkModel]:
         """Fetch all chunks lacking either an embedding or a search_vector."""
         result = await self.session.execute(
@@ -43,29 +21,6 @@ class ChunkRepository:
             )
         )
         return result.scalars().all()
-
-    async def create(
-        self,
-        *,
-        document_db_id: int,
-        chunk_index: int,
-        content: str,
-        section_title: str | None = None,
-        embedding: list[float] | None = None,
-        metadata_json: dict | None = None,
-    ) -> ChunkModel:
-        chunk = ChunkModel(
-            document_db_id=document_db_id,
-            chunk_index=chunk_index,
-            content=content,
-            section_title=section_title,
-            embedding=embedding,
-            search_vector=func.to_tsvector("english", content),
-            metadata_json=metadata_json or {},
-        )
-        self.session.add(chunk)
-        await self.session.flush()
-        return chunk
 
     async def create_many(
         self,
@@ -175,15 +130,3 @@ class ChunkRepository:
         result = await self.session.execute(query)
         # Return pairs of (ChunkModel, rank)
         return [(row[0], float(row[1])) for row in result.all()]
-
-    async def delete_for_document(
-        self,
-        document_db_id: int,
-    ) -> int:
-        result = await self.session.execute(
-            delete(ChunkModel).where(
-                ChunkModel.document_db_id == document_db_id,
-            )
-        )
-        await self.session.flush()
-        return result.rowcount

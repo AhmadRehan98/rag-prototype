@@ -37,6 +37,15 @@ class EmbeddingService:
             )
         return self._model
 
+    @property
+    def max_tokens(self) -> int:
+        """Longest input the model reads; anything after it is silently cut off."""
+        return self.model.max_seq_length
+
+    def token_count(self, text: str) -> int:
+        """Number of tokens the model sees for `text`, including special tokens."""
+        return len(self.model.tokenizer(text.strip(), add_special_tokens=True)["input_ids"])
+
     def embed_text(self, text: str) -> list[float]:
         """Generate a normalized 384-dim dense vector for a single string."""
         if not text or not text.strip():
