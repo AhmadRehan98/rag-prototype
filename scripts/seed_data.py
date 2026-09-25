@@ -556,12 +556,14 @@ async def seed_users(
     repository = UserRepository(session)
 
     created_count = 0
+    seeded_user_ids: set[str] = set()
 
     for raw_user in records:
         if not isinstance(raw_user, dict):
             raise SeedDataError("Every identity must be a JSON object.")
 
         user_data = extract_user_fields(raw_user)
+        seeded_user_ids.add(user_data["user_id"])
 
         user = await repository.get_by_user_id(user_data["user_id"])
 
@@ -572,9 +574,14 @@ async def seed_users(
             user.display_name = user_data["display_name"]
             user.department = user_data["department"]
 
+            # Roles and groups must match identities.json exactly: a group
+            # removed from the file must also stop granting access.
             existing_roles = {item.role for item in user.roles}
 
             existing_groups = {item.group for item in user.groups}
+
+            for role in existing_roles - set(user_data["roles"]):
+                await repository.remove_role(user, role)
 
             for role in user_data["roles"]:
                 if role not in existing_roles:
@@ -583,12 +590,20 @@ async def seed_users(
                         role,
                     )
 
+            for group in existing_groups - set(user_data["groups"]):
+                await repository.remove_group(user, group)
+
             for group in user_data["groups"]:
                 if group not in existing_groups:
                     await repository.add_group(
                         user,
                         group,
                     )
+
+    # Users no longer in identities.json lose all access.
+    for user in await repository.list_all():
+        if user.user_id not in seeded_user_ids:
+            await repository.delete(user)
 
     return created_count
 
