@@ -6,7 +6,7 @@ from sqlalchemy.dialects.postgresql import TSQUERY
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from src.database.models import ChunkModel, DocumentModel
+from src.database.models import ChunkModel
 
 
 class ChunkRepository:
