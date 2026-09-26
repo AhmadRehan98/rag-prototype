@@ -5,6 +5,12 @@ Runs every case in data/evaluation/cases.jsonl through the real pipeline
 statuses and invariants rather than exact wording, because LLM output varies
 between runs.
 
+There is one case per mandatory case family. A case sends one question as one
+or more users (`runs`), each with its own expectations: the authorization case
+asks the same question as the Engineering and the HR employee. A case passes
+only if every run passes. `expected_response` describes the outcome in words
+for reviewers; it is copied into the results, not checked.
+
 Every failed check blocks a release:
 - status: the outcome class is wrong (e.g. an SLA question was "answered", or a
   question the user is entitled to have answered was refused).
@@ -70,8 +76,26 @@ class EvaluationAborted(Exception):
 
 
 def load_cases(path: Path) -> list[dict]:
+    """One entry per run: each case's question paired with each of its users."""
+    runs = []
     with path.open(encoding="utf-8") as file:
-        return [json.loads(line) for line in file if line.strip()]
+        for line in file:
+            if not line.strip():
+                continue
+            case = json.loads(line)
+            for run in case["runs"]:
+                runs.append(
+                    {
+                        "id": case["id"],
+                        "family": case["family"],
+                        "incident": case["incident"],
+                        "question": case["question"],
+                        "expected_response": case["expected_response"],
+                        "user_id": run["user_id"],
+                        "expect": run["expect"],
+                    }
+                )
+    return runs
 
 
 def source_key(document_id: str, version: str) -> set[str]:
@@ -147,8 +171,10 @@ async def run_case(case: dict) -> dict:
     return {
         "id": case["id"],
         "family": case["family"],
+        "incident": case["incident"],
         "user_id": case["user_id"],
         "question": case["question"],
+        "expected_response": case["expected_response"],
         "passed": not failures,
         "failures": failures,
         "status": response.status,
@@ -172,7 +198,7 @@ async def run(cases: list[dict]) -> list[dict]:
             results.append(result)
             mark = "PASS" if result["passed"] else "FAIL"
             print(
-                f"[{number}/{len(cases)}] {mark} {case['id']} "
+                f"[{number}/{len(cases)}] {mark} {case['id']} as {case['user_id']} "
                 f"({result['status']}, {result['seconds']}s)",
                 flush=True,
             )
@@ -184,11 +210,17 @@ async def run(cases: list[dict]) -> list[dict]:
 
 
 def summarize(results: list[dict]) -> dict:
-    families: dict[str, dict] = {}
+    """Cases passed per family; a case passes only if all its runs pass."""
+    cases: dict[str, dict] = {}
     for result in results:
-        family = families.setdefault(result["family"], {"passed": 0, "total": 0})
+        case = cases.setdefault(result["id"], {"family": result["family"], "passed": True})
+        case["passed"] = case["passed"] and result["passed"]
+
+    families: dict[str, dict] = {}
+    for case in cases.values():
+        family = families.setdefault(case["family"], {"passed": 0, "total": 0})
         family["total"] += 1
-        family["passed"] += result["passed"]
+        family["passed"] += case["passed"]
     return families
 
 
@@ -213,7 +245,8 @@ def main() -> int:
         return 2
 
     families = summarize(results)
-    blocked = [result["id"] for result in results if not result["passed"]]
+    # Case ids, each once, in order.
+    blocked = list(dict.fromkeys(result["id"] for result in results if not result["passed"]))
     report = {
         "run_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "config": {

@@ -1,7 +1,33 @@
 """The release-gate checks in scripts/run_evaluation.py."""
 
+from src.config.settings import settings
 from src.domain.models import ExcludedSource, QueryResponse, Source
-from scripts.run_evaluation import check_case
+from scripts.run_evaluation import check_case, load_cases, summarize
+
+
+def test_dataset_has_one_case_per_mandatory_family():
+    runs = load_cases(settings.resolve_path(settings.EVALUATION_CASES_PATH))
+    case_ids = {run["id"] for run in runs}
+    assert len(case_ids) == 4
+    assert {run["family"] for run in runs} == {
+        "policy_authority", "unsupported_sla", "authorization", "malicious_document",
+    }
+    # Incident 3: the same request from the Engineering and the HR employee.
+    authorization = [run for run in runs if run["family"] == "authorization"]
+    assert {run["user_id"] for run in authorization} == {"u-eng-104", "u-hr-207"}
+    assert len({run["question"] for run in authorization}) == 1
+
+
+def test_a_case_fails_if_any_of_its_runs_fails():
+    results = [
+        {"id": "authorization", "family": "authorization", "passed": True},
+        {"id": "authorization", "family": "authorization", "passed": False},
+        {"id": "unsupported-sla", "family": "unsupported_sla", "passed": True},
+    ]
+    assert summarize(results) == {
+        "authorization": {"passed": 0, "total": 1},
+        "unsupported_sla": {"passed": 1, "total": 1},
+    }
 
 
 def source(citation, document_id, version="1.0"):
