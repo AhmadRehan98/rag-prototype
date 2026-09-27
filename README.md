@@ -1,5 +1,6 @@
 # How to run:
 
+- install docker desktop or an alternative first
 - pull the repo locally, in the root dir, do the following commands:
 - `docker compose up -d`
 - `docker compose exec api poetry run alembic upgrade head`
