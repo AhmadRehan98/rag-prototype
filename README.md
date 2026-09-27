@@ -7,6 +7,7 @@
 - `docker compose exec api poetry run python -m scripts.seed_data`
 - open [localhost:8000](http://localhost:8000/) in any web browser
 - use the [POST /api/v1/query](http://localhost:8000/docs#/Enterprise%20Knowledge%20QA/query_endpoint_api_v1_query_post) endpoint to query the sample data provided in any of the made-up cases.
+- evaluation cases can be ran using `docker compose exec api poetry run python -m scripts.run_evaluation`. The results will be in the `latest_results` json file here: [data/evaluation/](data/evaluation/).
 
 # Part 1 - Local RAG:
 
